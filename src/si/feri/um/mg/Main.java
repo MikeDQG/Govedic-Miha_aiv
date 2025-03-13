@@ -36,9 +36,13 @@ public class Main {
 
             // Update provider
             System.out.println("\nPosodobi ponudnika: Franc -> Francek");
-            System.out.println(providerService.getProvider("franc@example.com"));
-            System.out.println(providerService.updateProvider("franc@example.com", "Francek"));
-            System.out.println(providerService.getProvider("franc@example.com"));
+            try {
+                System.out.println(providerService.getProvider("franc@example.com"));
+                System.out.println(providerService.updateProvider("franc@example.com", "Francek"));
+                System.out.println(providerService.getProvider("franc@example.com"));
+            } catch (InstanceNotFoundException e) {
+                System.out.println(e.getMessage());
+            }
 
             // All provider's chargers
             System.out.println("\nVse polmnilnice ponudnika: Francek");
@@ -46,16 +50,24 @@ public class Main {
 
             // Update charger
             System.out.println("\nPosodobi polnilnico: TPC -> Europark");
-            System.out.println(chargerService.getChargerById(2));
-            chargerService.updateCharger(2, "Europark");
-            System.out.println(chargerService.getChargerById(2));
+            try {
+                System.out.println(chargerService.getChargerById(2));
+                chargerService.updateCharger(2, "Europark");
+                System.out.println(chargerService.getChargerById(2));
+            } catch (InstantiationException e) {
+                System.out.println(e.getMessage());
+            }
 
             // Delete charger
             System.out.println("\nIzbrisi polnilnico: Park");
-            System.out.println(chargerService.getChargerById(3));
-            chargerService.deleteCharger(3);
-            System.out.println("Polnilnica id=3");
-            System.out.println(chargerService.getChargerById(3));
+            try {
+                System.out.println(chargerService.getChargerById(3));
+                chargerService.deleteCharger(3);
+                System.out.println("Polnilnica id=3");
+                System.out.println(chargerService.getChargerById(3));
+            } catch (InstanceNotFoundException | InstantiationException e) {
+                System.out.println(e.getMessage());
+            }
             System.out.println("Vse polnilnice");
             chargerService.getAllChargers().forEach(System.out::println);
 
@@ -70,10 +82,10 @@ public class Main {
 
             // Delete provider
             System.out.println("\nIzbrisi ponudnika: Marko");
-            System.out.println(providerService.getProvider("marko@example.com"));
-            System.out.println(providerService.deleteProvider("marko@example.com"));
-            System.out.println("Ponudnik marko@example.com:");
             try {
+                System.out.println(providerService.getProvider("marko@example.com"));
+                System.out.println(providerService.deleteProvider("marko@example.com"));
+                System.out.println("Ponudnik marko@example.com:");
                 System.out.println(providerService.getProvider("marko@example.com"));
             } catch (InstanceNotFoundException e) {
                 System.out.println(e.getMessage());

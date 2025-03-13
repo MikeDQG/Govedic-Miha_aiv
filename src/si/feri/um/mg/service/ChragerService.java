@@ -1,5 +1,6 @@
 package src.si.feri.um.mg.service;
 
+import src.si.feri.um.mg.InstanceNotFoundException;
 import src.si.feri.um.mg.dao.ChargerDAO;
 import src.si.feri.um.mg.dao.interfaces.IChargerDAO;
 import src.si.feri.um.mg.vao.Charger;
@@ -24,18 +25,23 @@ public class ChragerService {
         return charger;
     }
 
-    public Charger getChargerById(int id) {
+    public Charger getChargerById(int id) throws InstantiationException, IllegalArgumentException {
         if (id < 0) {
             throw new IllegalArgumentException("ID cannot be negative");
         }
-        return chargerDAO.getChargerById(id).orElse(null);
+        Optional<Charger> charger = chargerDAO.getChargerById(id);
+        if (charger.isPresent()) {
+            return charger.get();
+        } else {
+            throw new InstanceNotFoundException("Charger with ID " + id + " not found");
+        }
     }
 
     public List<Charger> getAllChargers() {
         return chargerDAO.getAllChargers();
     }
 
-    public boolean updateCharger(int id, String name) {
+    public boolean updateCharger(int id, String name) throws InstanceNotFoundException, IllegalArgumentException {
         if (id < 0) {
             throw new IllegalArgumentException("ID cannot be negative");
         }

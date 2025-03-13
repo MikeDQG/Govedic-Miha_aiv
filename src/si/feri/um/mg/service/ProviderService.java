@@ -36,7 +36,7 @@ public class ProviderService {
         return provider.get();
     }
 
-    public boolean updateProvider(String email, String name) {
+    public boolean updateProvider(String email, String name) throws IllegalArgumentException {
         if (email == null || email.isEmpty() || name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Email/name cannot be null or empty");
         }
@@ -58,7 +58,7 @@ public class ProviderService {
             getProvider(email);
             providerDAO.deleteProvider(email);
             return true;
-        } catch (Exception e) {
+        } catch (InstanceNotFoundException e) {
             System.out.println(e.getMessage());
             return false;
         }
