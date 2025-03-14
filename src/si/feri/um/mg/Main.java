@@ -2,6 +2,7 @@ package src.si.feri.um.mg;
 
 import src.si.feri.um.mg.dao.ChargerDAO;
 import src.si.feri.um.mg.dao.ProviderDAO;
+import src.si.feri.um.mg.iterators.*;
 import src.si.feri.um.mg.service.ChragerService;
 import src.si.feri.um.mg.service.ProviderService;
 import src.si.feri.um.mg.vao.Charger;
@@ -17,14 +18,24 @@ public class Main {
             Provider p2 = providerService.createProvider("Joze", "joze@example.com");
 
 
-            Charger c1 = chargerService.createCharger("Polnilnica FERI", 1, p1);
-            Charger c2 = chargerService.createCharger("Polnilnica TPC", 2, p1);
-            Charger c3 = chargerService.createCharger("Polnilnica Park", 3, p2);
+            Charger c1 = chargerService.createCharger("Polnilnica FERI", 1, p1, 50, "Maribor");
+            Charger c2 = chargerService.createCharger("Polnilnica TPC", 2, p1, 25, "Maribor");
+            Charger c3 = chargerService.createCharger("Polnilnica Park", 3, p2, 36, "Ljubljana");
+            Charger c4 = chargerService.createCharger("Polnilnica FERI", 4, p1, 50, "Maribor");
+            Charger c5 = chargerService.createCharger("Polnilnica TPC", 5, p1, 25, "Maribor");
+            Charger c6 = chargerService.createCharger("Polnilnica Park", 6, p2, 36, "Ljubljana");
+
+            c4.setActive(false);
+            c6.setActive(false);
 
 
             p1.addCharger(c1);
             p1.addCharger(c2);
             p2.addCharger(c3);
+            p1.addCharger(c4);
+            p1.addCharger(c5);
+            p1.addCharger(c6);
+
 
             // Prikaz providerjev
             System.out.println("Vsi ponudniki:");
@@ -92,6 +103,43 @@ public class Main {
             }
             System.out.println("Vsi ponudniki:");
             providerService.getAllProviders().forEach(System.out::println);
+
+            // Test ChargerIterator
+            System.out.println("\nChargerIterator:");
+            ChargerIterator chargerIterator = new ChargerIterator(p1.getChargers());
+            while (chargerIterator.hasNext()) {
+                System.out.println(chargerIterator.next().getName());
+            }
+
+            // Test ActiveChargerIterator
+            System.out.println("\nActiveChargerIterator:");
+            ActiveChargerIterator activeChargerIterator = new ActiveChargerIterator(p1.getChargers(), true);
+            while (activeChargerIterator.hasNext()) {
+                System.out.println(activeChargerIterator.next());
+            }
+
+            // Test PowerChargerIterator
+            System.out.println("\nPowerChargerIterator, minPower 40kW:");
+            PowerChargerIterator powerChargerIterator = new PowerChargerIterator(p1.getChargers(), 40);
+            while (powerChargerIterator.hasNext()) {
+                System.out.println(powerChargerIterator.next());
+            }
+
+            // Test RegionChargerIterator
+            System.out.println("\nRegionChargerIterator, region 'Maribor'");
+            RegionChargerIterator regionChargerIterator = new RegionChargerIterator(p1.getChargers(), "Maribor");
+            while (regionChargerIterator.hasNext()) {
+                System.out.println(regionChargerIterator.next());
+            }
+
+            // Test All Chargers from all providers sorted alphabetically
+            System.out.println("\nAll chargers alphabetically:");
+            AllChargersAlphabetically allChargersAlphabetically = new AllChargersAlphabetically(providerService.getAllProviders());
+            while (allChargersAlphabetically.hasNext()) {
+                System.out.println(allChargersAlphabetically.next());
+            }
+
+
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
