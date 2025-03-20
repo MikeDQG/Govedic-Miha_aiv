@@ -9,7 +9,7 @@ import src.si.feri.um.mg.vao.Provider;
 import java.util.List;
 import java.util.Optional;
 
-public class ChragerService {
+public class ChargerService {
 
     private final IChargerDAO chargerDAO = ChargerDAO.getInstance();
 
