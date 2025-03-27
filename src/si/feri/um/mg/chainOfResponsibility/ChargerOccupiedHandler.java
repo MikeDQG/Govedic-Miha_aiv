@@ -12,13 +12,14 @@ public class ChargerOccupiedHandler implements ChargerHandler {
     }
 
     @Override
-    public void handleRequest(Charger charger, User user) {
+    public boolean handleRequest(Charger charger, User user) {
         if (!charger.isActive()) {
-            charger.setCurrentUser(user);
-//            System.out.println("active cool");
             if (nextHandler != null) {
-                nextHandler.handleRequest(charger, user);
+                return nextHandler.handleRequest(charger, user);
             }
-        } else charger.setCurrentUser(null);
+            return true;
+        }
+        System.out.println("polnilnica je zasedena – polnjenje zavrnjeno");
+        return false;
     }
 }

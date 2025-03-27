@@ -12,13 +12,14 @@ public class UserBalanceCheckHandler implements ChargerHandler {
     }
 
     @Override
-    public void handleRequest(Charger charger, User user) {
+    public boolean handleRequest(Charger charger, User user) {
         if (user.getBalance() >= charger.getCost()) {
-            charger.setCurrentUser(user);
-//            System.out.println("balance cool");
             if (nextHandler != null) {
-                nextHandler.handleRequest(charger, user);
+                return nextHandler.handleRequest(charger, user);
             }
-        } else charger.setCurrentUser(null);
+            return true;
+        }
+        System.out.println("Uporabnik "+user.getName()+" nima dovolj sredstev – polnjenje zavrnjeno.");
+        return false;
     }
 }

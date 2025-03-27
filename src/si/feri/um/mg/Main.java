@@ -31,7 +31,7 @@ public class Main {
             Charger c5 = chargerService.createCharger("Polnilnica TPC", 5, p1, 25, "Maribor", "Tesla");
             Charger c6 = chargerService.createCharger("Polnilnica Park", 6, p2, 36, "Ljubljana", "Tesla");
 
-            c4.setActive(true);
+//            c4.setActive(true);
             c6.setActive(true);
 
             User u1 = userService.createUser("Janez", "j@um.si", "Tesla", 100.0d);
@@ -158,18 +158,19 @@ public class Main {
 
             // 1. Uporabnik želi začeti polnjenje, a polnilnica je zasedena – polnjenje zavrnjeno.
             c1.setActive(true);
-            c1.charge(u1);
+            chargerService.charge(c1, u1);
 
             // 2. Uporabnik želi začeti polnjenje, a nima dovolj sredstev – polnjenje zavrnjeno.
             u1.setBalance(10.0d);
-            c1.charge(u1);
+            chargerService.charge(c2, u1);
 
             // 3. Uporabnik želi začeti polnjenje, a vozilo ni kompatibilno s polnilnico – polnjenje zavrnjeno.
             u1.setCarType("Pohorskaprikolca");
-            c1.charge(u1);
+            u1.setBalance(100.0d);
+            chargerService.charge(c3, u1);
 
             // 4. Uporabnik uspešno začne polnjenje. - Metka
-            c2.charge(u2);
+            chargerService.charge(c4, u2);
 
 //
 //            TimeUnit.SECONDS.sleep(2);

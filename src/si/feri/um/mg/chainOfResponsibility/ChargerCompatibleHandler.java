@@ -12,13 +12,14 @@ public class ChargerCompatibleHandler implements ChargerHandler {
     }
 
     @Override
-    public void handleRequest(Charger charger, User user) {
+    public boolean handleRequest(Charger charger, User user) {
         if (user.getCarType().equalsIgnoreCase(charger.getAcceptedType())) {
-            charger.setCurrentUser(user);
-//            System.out.println("cartype cool");
             if (nextHandler != null) {
-                nextHandler.handleRequest(charger, user);
+                return nextHandler.handleRequest(charger, user);
             }
-        } else charger.setCurrentUser(null);
+            return true;
+        }
+        System.out.println("vozilo "+user.getCarType()+" ni kompatibilno s polnilnico "+charger.getAcceptedType());
+        return false;
     }
 }

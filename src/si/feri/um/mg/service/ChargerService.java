@@ -1,10 +1,15 @@
 package src.si.feri.um.mg.service;
 
 import src.si.feri.um.mg.InstanceNotFoundException;
+import src.si.feri.um.mg.chainOfResponsibility.ChargerCompatibleHandler;
+import src.si.feri.um.mg.chainOfResponsibility.ChargerHandler;
+import src.si.feri.um.mg.chainOfResponsibility.ChargerOccupiedHandler;
+import src.si.feri.um.mg.chainOfResponsibility.UserBalanceCheckHandler;
 import src.si.feri.um.mg.dao.ChargerDAO;
 import src.si.feri.um.mg.dao.interfaces.IChargerDAO;
 import src.si.feri.um.mg.vao.Charger;
 import src.si.feri.um.mg.vao.Provider;
+import src.si.feri.um.mg.vao.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +28,24 @@ public class ChargerService {
         Charger charger = new Charger(name, id, provider, powerOutput, region, acceptedType);
         chargerDAO.insertCharger(charger);
         return charger;
+    }
+
+    public void charge(Charger charger, User user) {
+        ChargerHandler chargerOccupiedHandler = new ChargerOccupiedHandler();
+        ChargerHandler userBalanceCheckHandler = new UserBalanceCheckHandler();
+        ChargerHandler carTypeCheckHandler = new ChargerCompatibleHandler();
+
+        chargerOccupiedHandler.setNextHandler(userBalanceCheckHandler);
+        userBalanceCheckHandler.setNextHandler(carTypeCheckHandler);
+
+        if (chargerOccupiedHandler.handleRequest(charger, user)) {
+//            charger.setActive(true);          // je implementirano ze v Charger.java
+//            charger.setCurrentUser(user);     // je implementirano ze v Charger.java
+            charger.charge(user);
+            System.out.println("Charger "+charger.getName()+" started with "+ user.getEmail()+"\n");
+        } else {
+            System.out.println("Charger not availible for " + user.getEmail()+"\n");
+        }
     }
 
     public Charger getChargerById(int id) throws InstantiationException, IllegalArgumentException {

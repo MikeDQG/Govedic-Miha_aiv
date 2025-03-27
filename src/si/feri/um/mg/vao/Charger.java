@@ -58,22 +58,9 @@ public class Charger {
     public User getCurrentUser() { return currentUser; }
 
     public void charge(User user) {
-        ChargerHandler chargerOccupiedHandler = new ChargerOccupiedHandler();
-        ChargerHandler userBalanceCheckHandler = new UserBalanceCheckHandler();
-        ChargerHandler carTypeCheckHandler = new ChargerCompatibleHandler();
-
-        chargerOccupiedHandler.setNextHandler(userBalanceCheckHandler);
-        userBalanceCheckHandler.setNextHandler(carTypeCheckHandler);
-
-        chargerOccupiedHandler.handleRequest(this, user);
-
-        if (this.currentUser != null && this.currentUser.getEmail().equals(user.getEmail())) {
-            this.isActive = true;
-            notifyObservers("start");
-            System.out.println("Charger started with "+ currentUser.getEmail());
-        } else {
-            System.out.println("Charger not availible for " + user.getEmail());
-        }
+        this.currentUser = user;
+        this.isActive = true;
+        notifyObservers("start");
     }
 
     public void chargingEnd(String userEmail) {
