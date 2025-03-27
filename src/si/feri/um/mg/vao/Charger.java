@@ -1,5 +1,9 @@
 package src.si.feri.um.mg.vao;
 
+import src.si.feri.um.mg.chainOfResponsibility.ChargerCompatibleHandler;
+import src.si.feri.um.mg.chainOfResponsibility.ChargerHandler;
+import src.si.feri.um.mg.chainOfResponsibility.ChargerOccupiedHandler;
+import src.si.feri.um.mg.chainOfResponsibility.UserBalanceCheckHandler;
 import src.si.feri.um.mg.observers.ChargerObserver;
 
 import java.util.ArrayList;
@@ -13,10 +17,12 @@ public class Charger {
     private boolean isActive;
     private double powerOutput;
     private String region;
-    private String currentUser;
+    private User currentUser;
     private List<ChargerObserver> observers;
+    private String acceptedType;
+    private double cost;
 
-    public Charger(String name, int id, Provider provider, double powerOutput, String region) {
+    public Charger(String name, int id, Provider provider, double powerOutput, String region, String acceptedType) {
         this.name = name;
         this.id = id;
         this.provider = provider;
@@ -25,7 +31,10 @@ public class Charger {
         this.region = region;
         this.currentUser = null;
         this.observers =  new ArrayList<ChargerObserver>();
+        this.acceptedType = acceptedType;
+        this.cost = 30.0d;
     }
+
     public String getName() { return name; }
     public int getId() { return id; }
     public Provider getProvider() { return provider; }
@@ -34,25 +43,41 @@ public class Charger {
     public void setProvider(Provider provider) { this.provider = provider; }
     public void setName(String name) { this.name = name; }
     public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { this.isActive = active; }
+    public void setActive(boolean active) {
+        this.isActive = active;
+        if (!active) this.currentUser = null; }
     public double getPowerOutput() { return powerOutput; }
     public void setPowerOutput(double powerOutput) { this.powerOutput = powerOutput; }
     public String getRegion() { return region; }
     public void setRegion(String region) { this.region = region; }
+    public String getAcceptedType() {return acceptedType;}
+    public void setAcceptedType(String acceptedType) {this.acceptedType = acceptedType;}
+    public double getCost() { return cost; }
+    public void setCost(double cost) { this.cost = cost; }
+    public void setCurrentUser(User currentUser) {this.currentUser = currentUser;}
+    public User getCurrentUser() { return currentUser; }
 
+    public void charge(User user) {
+        ChargerHandler chargerOccupiedHandler = new ChargerOccupiedHandler();
+        ChargerHandler userBalanceCheckHandler = new UserBalanceCheckHandler();
+        ChargerHandler carTypeCheckHandler = new ChargerCompatibleHandler();
 
-    public void charge(String userEmail) {
-        if (this.currentUser == null || !this.isActive) {
-            this.currentUser = userEmail;
+        chargerOccupiedHandler.setNextHandler(userBalanceCheckHandler);
+        userBalanceCheckHandler.setNextHandler(carTypeCheckHandler);
+
+        chargerOccupiedHandler.handleRequest(this, user);
+
+        if (this.currentUser != null && this.currentUser.getEmail().equals(user.getEmail())) {
             this.isActive = true;
             notifyObservers("start");
+            System.out.println("Charger started with "+ currentUser.getEmail());
         } else {
-            System.out.println("Charger not availible");
+            System.out.println("Charger not availible for " + user.getEmail());
         }
     }
 
     public void chargingEnd(String userEmail) {
-        if (Objects.equals(this.currentUser, userEmail)) {
+        if (Objects.equals(this.currentUser.getEmail(), userEmail)) {
             this.isActive = false;
             this.currentUser = null;
             notifyObservers("end");
@@ -70,7 +95,7 @@ public class Charger {
     }
 
     private void notifyObservers(String action) {
-        observers.forEach(observer -> observer.update(this, currentUser, action));
+        observers.forEach(observer -> observer.update(this, currentUser.getEmail(), action));
     }
 
     @Override

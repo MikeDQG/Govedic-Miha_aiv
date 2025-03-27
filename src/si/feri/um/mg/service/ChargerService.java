@@ -13,14 +13,14 @@ public class ChargerService {
 
     private final IChargerDAO chargerDAO = ChargerDAO.getInstance();
 
-    public Charger createCharger(String name, int id, Provider provider, double powerOutput, String region) {
-        if (name == null || name.isEmpty() || provider == null) {
-            throw new IllegalArgumentException("Name/provider cannot be null or empty");
+    public Charger createCharger(String name, int id, Provider provider, double powerOutput, String region, String acceptedType) {
+        if (name == null || name.isEmpty() || provider == null || region == null || region.isEmpty() || acceptedType == null || acceptedType.isEmpty()) {
+            throw new IllegalArgumentException("Arguments cannot be null or empty");
         }
         if (id < 0) {
             throw new IllegalArgumentException("ID cannot be negative");
         }
-        Charger charger = new Charger(name, id, provider, powerOutput, region);
+        Charger charger = new Charger(name, id, provider, powerOutput, region, acceptedType);
         chargerDAO.insertCharger(charger);
         return charger;
     }

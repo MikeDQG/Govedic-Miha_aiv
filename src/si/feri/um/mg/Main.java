@@ -6,8 +6,10 @@ import src.si.feri.um.mg.observers.ProviderNotifier;
 import src.si.feri.um.mg.observers.UserNotifier;
 import src.si.feri.um.mg.service.ChargerService;
 import src.si.feri.um.mg.service.ProviderService;
+import src.si.feri.um.mg.service.UserService;
 import src.si.feri.um.mg.vao.Charger;
 import src.si.feri.um.mg.vao.Provider;
+import src.si.feri.um.mg.vao.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,21 +17,25 @@ public class Main {
     public static void main(String[] args) {
         ProviderService providerService = new ProviderService();
         ChargerService chargerService = new ChargerService();
+        UserService userService = new UserService();
 
         try {
             Provider p1 = providerService.createProvider("Franc", "franc@example.com");
             Provider p2 = providerService.createProvider("Joze", "joze@example.com");
 
 
-            Charger c1 = chargerService.createCharger("Polnilnica FERI", 1, p1, 50, "Maribor");
-            Charger c2 = chargerService.createCharger("Polnilnica TPC", 2, p1, 25, "Maribor");
-            Charger c3 = chargerService.createCharger("Polnilnica Park", 3, p2, 36, "Ljubljana");
-            Charger c4 = chargerService.createCharger("Polnilnica FERI", 4, p1, 50, "Maribor");
-            Charger c5 = chargerService.createCharger("Polnilnica TPC", 5, p1, 25, "Maribor");
-            Charger c6 = chargerService.createCharger("Polnilnica Park", 6, p2, 36, "Ljubljana");
+            Charger c1 = chargerService.createCharger("Polnilnica FERI", 1, p1, 50, "Maribor", "Tesla");
+            Charger c2 = chargerService.createCharger("Polnilnica TPC", 2, p1, 25, "Maribor", "Tesla");
+            Charger c3 = chargerService.createCharger("Polnilnica Park", 3, p2, 36, "Ljubljana", "Tesla");
+            Charger c4 = chargerService.createCharger("Polnilnica FERI", 4, p1, 50, "Maribor", "Tesla");
+            Charger c5 = chargerService.createCharger("Polnilnica TPC", 5, p1, 25, "Maribor", "Tesla");
+            Charger c6 = chargerService.createCharger("Polnilnica Park", 6, p2, 36, "Ljubljana", "Tesla");
 
-            c4.setActive(false);
-            c6.setActive(false);
+            c4.setActive(true);
+            c6.setActive(true);
+
+            User u1 = userService.createUser("Janez", "j@um.si", "Tesla", 100.0d);
+            User u2 = userService.createUser("Metka", "m@um.si", "Tesla", 200.0d);
 
 
             p1.addCharger(c1);
@@ -142,19 +148,36 @@ public class Main {
 //                System.out.println(allChargersAlphabetically.next());
 //            }
 
-            c1.addObserver(new UserNotifier());
-            c1.addObserver(new ProviderNotifier());
-            c1.addObserver(new ChargingStationDisplay());
-            TimeUnit.SECONDS.sleep(2);
-            c1.charge("u@a.i");
+//            c1.addObserver(new UserNotifier());
+//            c1.addObserver(new ProviderNotifier());
+//            c1.addObserver(new ChargingStationDisplay());
+//            TimeUnit.SECONDS.sleep(2);
 
 
-            TimeUnit.SECONDS.sleep(2);
-            c1.chargingEnd("u@a.i");
+// -------------------------------------------------------------------------------------------------------------------------
+
+            // 1. Uporabnik želi začeti polnjenje, a polnilnica je zasedena – polnjenje zavrnjeno.
+            c1.setActive(true);
+            c1.charge(u1);
+
+            // 2. Uporabnik želi začeti polnjenje, a nima dovolj sredstev – polnjenje zavrnjeno.
+            u1.setBalance(10.0d);
+            c1.charge(u1);
+
+            // 3. Uporabnik želi začeti polnjenje, a vozilo ni kompatibilno s polnilnico – polnjenje zavrnjeno.
+            u1.setCarType("Pohorskaprikolca");
+            c1.charge(u1);
+
+            // 4. Uporabnik uspešno začne polnjenje. - Metka
+            c2.charge(u2);
+
+//
+//            TimeUnit.SECONDS.sleep(2);
+//            c1.chargingEnd("u@a.i");
 
 
 
-        } catch (IllegalArgumentException | InterruptedException e) {
+        } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
 
